@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to TransitOps</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            padding: 32px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        .content {
+            padding: 40px;
+        }
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 16px;
+        }
+        .intro {
+            font-size: 14px;
+            color: #475569;
+            margin-bottom: 24px;
+        }
+        .credentials-panel {
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .credentials-row {
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .credentials-row:last-child {
+            margin-bottom: 0;
+        }
+        .label {
+            font-weight: 600;
+            color: #64748b;
+            display: inline-block;
+            width: 150px;
+        }
+        .value {
+            font-family: monospace;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .cta-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+        .cta-button {
+            background-color: #2563eb;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 12px 32px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 8px;
+            display: inline-block;
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        .cta-button:hover {
+            background-color: #1d4ed8;
+        }
+        .warning {
+            font-size: 12px;
+            color: #94a3b8;
+            background-color: #fafafa;
+            border-left: 4px solid #cbd5e1;
+            padding: 12px;
+            margin-bottom: 24px;
+            border-radius: 0 8px 8px 0;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 24px 40px;
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer p {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TransitOps</h1>
+        </div>
+        <div class="content">
+            <div class="greeting">Hello {{ full_name }},</div>
+            <div class="intro">
+                You have been added to the TransitOps platform as a <strong>{{ role_name }}</strong>. Your account is ready for use. Please find your login credentials below:
+            </div>
+            
+            <div class="credentials-panel">
+                <div class="credentials-row">
+                    <span class="label">Login ID (Email):</span>
+                    <span class="value">{{ email }}</span>
+                </div>
+                <div class="credentials-row">
+                    <span class="label">Temporary Password:</span>
+                    <span class="value">{{ temporary_password }}</span>
+                </div>
+            </div>
+
+            <div class="warning">
+                <strong>Please note:</strong> Keep these credentials confidential. You will be required to change your password immediately upon your first sign in.
+            </div>
+
+            <div class="cta-container">
+                <a href="{{ login_url }}" class="cta-button">Login to TransitOps</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>This is an automated message from the TransitOps Fleet Management System.</p>
+            <p>If you did not expect this account, please contact system support.</p>
+        </div>
+    </div>
+</body>
+</html>

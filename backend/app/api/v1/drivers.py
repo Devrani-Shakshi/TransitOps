@@ -1,7 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.deps import get_db, get_current_user
+from app.core.deps import get_db, get_current_user, RoleChecker
 from app.repositories.driver_repository import driver_repository
 from app.services.driver_service import driver_service
 from app.schemas.driver import DriverCreate, DriverUpdate, DriverResponse
@@ -12,7 +12,7 @@ class StatusUpdate(BaseModel):
     status: str
 
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(RoleChecker(["admin", "fleet_manager", "safety_officer"]))])
 
 @router.get("")
 @router.get("/")

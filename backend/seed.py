@@ -16,7 +16,6 @@ from app.models.expense import Expense
 async def seed_data():
     print("Starting database seeding of exactly 10 records per table...")
     async with async_session() as session:
-        
         # 1. Seed 10 Roles
         role_names = [
             "ADMIN", "FLEET_MANAGER", "DRIVER", "SAFETY_OFFICER", "FINANCIAL_ANALYST",
@@ -36,89 +35,22 @@ async def seed_data():
 
         # Backward compatibility aliases
         roles_dict["admin"] = roles_dict["ADMIN"]
+        roles_dict["dispatcher"] = roles_dict["DISPATCHER"]
         roles_dict["driver"] = roles_dict["DRIVER"]
 
-        # 2. Seed 10 Demo Users
+        # 2. Seed Demo Users (Exactly one bootstrap admin per system auth requirements)
         users_to_seed = [
             {
-                "email": settings.FIRST_SUPERUSER,
-                "hashed_password": get_password_hash(settings.FIRST_SUPERUSER_PASSWORD),
+                "email": settings.FIRST_SUPERUSER or "admin@transitops.io",
+                "hashed_password": get_password_hash(settings.FIRST_SUPERUSER_PASSWORD or "Demo@123"),
                 "full_name": "System Administrator",
+                "mobile_number": "9999999999",
+                "gender": "Other",
+                "must_change_password": False,
+                "email_status": "SENT",
                 "is_active": True,
                 "is_superuser": True,
                 "role_id": roles_dict["ADMIN"].id
-            },
-            {
-                "email": "admin@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Devang Panchal",
-                "is_active": True,
-                "is_superuser": True,
-                "role_id": roles_dict["ADMIN"].id
-            },
-            {
-                "email": "fleet@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Marcus Vance",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["FLEET_MANAGER"].id
-            },
-            {
-                "email": "driver@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Elena Rostova",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["DRIVER"].id
-            },
-            {
-                "email": "safety@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Shakshi Devrani",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["SAFETY_OFFICER"].id
-            },
-            {
-                "email": "finance@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Priya Devrani",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["FINANCIAL_ANALYST"].id
-            },
-            {
-                "email": "dispatcher@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Robert Downey",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["DISPATCHER"].id
-            },
-            {
-                "email": "maintenance@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Ramirez Ruiz",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["MAINTENANCE_SUPERVISOR"].id
-            },
-            {
-                "email": "logistics@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Scarlett Johansson",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["LOGISTICS_ANALYST"].id
-            },
-            {
-                "email": "director@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Chris Evans",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["OPERATIONS_DIRECTOR"].id
             }
         ]
 

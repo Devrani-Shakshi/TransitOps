@@ -37,8 +37,11 @@ class Settings(BaseSettings):
     EMAILS_FROM_NAME: str = "Core Fleet Management"
 
     # First Superuser
-    FIRST_SUPERUSER: str = "admin@fleet.com"
-    FIRST_SUPERUSER_PASSWORD: str = "AdminPassword123!"
+    FIRST_SUPERUSER: str = "admin@transitops.io"
+    FIRST_SUPERUSER_PASSWORD: str = "Demo@123"
+
+    # Frontend URL
+    FRONTEND_URL: str = "http://localhost:4200"
 
     # Testing
     TEST_DATABASE_URL: str = "sqlite+aiosqlite:///:memory:"

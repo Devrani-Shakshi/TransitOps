@@ -1,12 +1,12 @@
 import uuid
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.deps import get_db, get_current_user
+from app.core.deps import get_db, get_current_user, RoleChecker
 from app.repositories.fuel_repository import fuel_repository
 from app.schemas.fuel_log import FuelLogCreate, FuelLogUpdate, FuelLogResponse
 from app.utils.response_envelope import success_response
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(RoleChecker(["admin", "financial_analyst"]))])
 
 @router.get("")
 @router.get("/")

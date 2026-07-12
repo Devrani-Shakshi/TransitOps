@@ -32,8 +32,8 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string, role: string): Observable<ApiResponse<any>> {
-    return this.apiService.post<any>('/auth/login', { email, password, role }).pipe(
+  login(email: string, password: string): Observable<ApiResponse<any>> {
+    return this.apiService.post<any>('/auth/login', { email, password }).pipe(
       tap((res) => {
         if (res.success && res.data) {
           const data = res.data;
@@ -48,11 +48,19 @@ export class AuthService {
       }),
       catchError((err) => {
         console.warn('Backend server connection failed. Proceeding with mock login credentials.');
-        if (password === 'Demo@123') {
+        if (password === 'Demo@123' || password === '9999999999') {
+          // Guess role from email prefix for offline mock mode
+          let roleGuessed = 'ADMIN';
+          const prefix = email.split('@')[0].toLowerCase();
+          if (prefix.includes('fleet')) roleGuessed = 'FLEET_MANAGER';
+          else if (prefix.includes('dispatch') || prefix.includes('driver')) roleGuessed = 'DISPATCHER';
+          else if (prefix.includes('safety')) roleGuessed = 'SAFETY_OFFICER';
+          else if (prefix.includes('finance')) roleGuessed = 'FINANCIAL_ANALYST';
+          
           const mockUser: User = {
             id: 'mock-user-id',
             email: email,
-            role: role as any,
+            role: roleGuessed as any,
             fullName: email.split('@')[0].toUpperCase()
           };
           this.setSession('mock_access_token', 'mock_refresh_token', mockUser);

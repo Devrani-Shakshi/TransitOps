@@ -2,14 +2,14 @@ import uuid
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.deps import get_db, get_current_user
+from app.core.deps import get_db, get_current_user, RoleChecker
 from app.repositories.trip_repository import trip_repository
 from app.services.trip_service import trip_service
 from app.services.dispatch_recommendation_service import dispatch_recommendation_service
 from app.schemas.trip import TripCreate, TripUpdate, TripResponse
 from app.utils.response_envelope import success_response
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(RoleChecker(["admin", "dispatcher", "safety_officer"]))])
 
 class TripTransitionRequest(BaseModel):
     status: str

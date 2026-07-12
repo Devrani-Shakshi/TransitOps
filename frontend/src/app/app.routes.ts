@@ -18,8 +18,13 @@ export const routes: Routes = [
         loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
       },
       {
+        path: 'user-management',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadChildren: () => import('./features/user-management/user-management.routes').then(m => m.USER_MANAGEMENT_ROUTES)
+      },
+      {
         path: 'vehicles',
-        canActivate: [roleGuard(['ADMIN', 'FLEET_MANAGER', 'DRIVER', 'FINANCIAL_ANALYST'])],
+        canActivate: [roleGuard(['ADMIN', 'FLEET_MANAGER', 'DISPATCHER', 'FINANCIAL_ANALYST'])],
         loadChildren: () => import('./features/vehicles/vehicles.routes').then(m => m.VEHICLES_ROUTES)
       },
       {
@@ -29,7 +34,7 @@ export const routes: Routes = [
       },
       {
         path: 'trips',
-        canActivate: [roleGuard(['ADMIN', 'DRIVER', 'SAFETY_OFFICER'])],
+        canActivate: [roleGuard(['ADMIN', 'DISPATCHER', 'SAFETY_OFFICER'])],
         loadChildren: () => import('./features/trips/trips.routes').then(m => m.TRIPS_ROUTES)
       },
       {
