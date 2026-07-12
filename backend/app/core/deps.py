@@ -74,7 +74,7 @@ async def get_current_user(
 
 class RoleChecker:
     def __init__(self, allowed_roles: list[str]):
-        self.allowed_roles = allowed_roles
+        self.allowed_roles = [r.upper() for r in allowed_roles]
 
     def __call__(self, current_user: User = Depends(get_current_user)) -> User:
         # For simplicity, if role name matches or user is superuser
@@ -82,7 +82,7 @@ class RoleChecker:
             return current_user
         
         # Load user's role relation
-        role_name = current_user.role.name if current_user.role else None
+        role_name = current_user.role.name.upper() if current_user.role and current_user.role.name else None
         if not role_name or role_name not in self.allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

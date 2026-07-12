@@ -1,13 +1,13 @@
 import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.deps import get_db, get_current_user
+from app.core.deps import get_db, get_current_user, RoleChecker
 from app.repositories.vehicle_repository import vehicle_repository
 from app.services.vehicle_service import vehicle_service
 from app.schemas.vehicle import VehicleCreate, VehicleUpdate, VehicleResponse
 from app.utils.response_envelope import success_response, error_response
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(RoleChecker(["admin", "fleet_manager", "dispatcher", "financial_analyst"]))])
 
 @router.get("/")
 async def list_vehicles(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):

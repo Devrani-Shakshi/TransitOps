@@ -1,13 +1,13 @@
 import uuid
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.deps import get_db, get_current_user
+from app.core.deps import get_db, get_current_user, RoleChecker
 from app.repositories.maintenance_repository import maintenance_repository
 from app.services.maintenance_service import maintenance_service
 from app.schemas.maintenance import MaintenanceCreate, MaintenanceUpdate, MaintenanceResponse
 from app.utils.response_envelope import success_response
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(RoleChecker(["admin", "fleet_manager", "safety_officer"]))])
 
 @router.get("/")
 async def list_maintenance_logs(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):

@@ -17,17 +17,20 @@ from app.utils.response_envelope import success_response
 
 router = APIRouter()
 
-@router.post("/register")
-async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
-    user = await auth_service.register(
-        db, 
-        email=user_in.email, 
-        password=user_in.password, 
-        full_name=user_in.full_name, 
-        role_id=user_in.role_id
-    )
-    user_res = UserResponse.model_validate(user)
-    return success_response(data=user_res.model_dump(mode="json"), status_code=status.HTTP_201_CREATED)
+@router.get("/me")
+async def get_me(current_user: User = Depends(get_current_user)):
+    role_name = current_user.role.name if current_user.role else None
+    response_data = {
+        "id": str(current_user.id),
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "mobile_number": current_user.mobile_number,
+        "gender": current_user.gender,
+        "must_change_password": current_user.must_change_password,
+        "role": role_name,
+        "is_active": current_user.is_active
+    }
+    return success_response(data=response_data)
 
 @router.post("/login")
 async def login(
@@ -78,7 +81,10 @@ async def login(
                 "id": str(user.id),
                 "email": user.email,
                 "role": role_name,
-                "full_name": user.full_name
+                "full_name": user.full_name,
+                "mobile_number": user.mobile_number,
+                "gender": user.gender,
+                "must_change_password": user.must_change_password
             }
         })
     else:

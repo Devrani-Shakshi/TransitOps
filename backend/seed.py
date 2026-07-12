@@ -17,7 +17,7 @@ async def seed_data():
     print("Starting database seeding...")
     async with async_session() as session:
         # 1. Seed Roles
-        role_names = ["ADMIN", "FLEET_MANAGER", "DRIVER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"]
+        role_names = ["ADMIN", "FLEET_MANAGER", "DISPATCHER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"]
         roles_dict = {}
         for rname in role_names:
             stmt = select(Role).filter(Role.name == rname)
@@ -32,57 +32,21 @@ async def seed_data():
 
         # Add lowercase keys for backward compatibility
         roles_dict["admin"] = roles_dict["ADMIN"]
-        roles_dict["driver"] = roles_dict["DRIVER"]
+        roles_dict["dispatcher"] = roles_dict["DISPATCHER"]
 
         # 2. Seed Demo Users
         users_to_seed = [
             {
-                "email": settings.FIRST_SUPERUSER,
-                "hashed_password": get_password_hash(settings.FIRST_SUPERUSER_PASSWORD),
+                "email": settings.FIRST_SUPERUSER or "admin@transitops.io",
+                "hashed_password": get_password_hash(settings.FIRST_SUPERUSER_PASSWORD or "Demo@123"),
                 "full_name": "System Administrator",
+                "mobile_number": "9999999999",
+                "gender": "Other",
+                "must_change_password": False,
+                "email_status": "SENT",
                 "is_active": True,
                 "is_superuser": True,
                 "role_id": roles_dict["ADMIN"].id
-            },
-            {
-                "email": "admin@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "System Admin",
-                "is_active": True,
-                "is_superuser": True,
-                "role_id": roles_dict["ADMIN"].id
-            },
-            {
-                "email": "fleet@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Fleet Manager",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["FLEET_MANAGER"].id
-            },
-            {
-                "email": "driver@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Dispatcher / Driver",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["DRIVER"].id
-            },
-            {
-                "email": "safety@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Safety Officer",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["SAFETY_OFFICER"].id
-            },
-            {
-                "email": "finance@transitops.io",
-                "hashed_password": get_password_hash("Demo@123"),
-                "full_name": "Financial Analyst",
-                "is_active": True,
-                "is_superuser": False,
-                "role_id": roles_dict["FINANCIAL_ANALYST"].id
             }
         ]
 

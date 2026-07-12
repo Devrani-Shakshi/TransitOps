@@ -2,12 +2,13 @@ from fastapi import APIRouter
 from app.api.v1 import (
     auth, dashboard, vehicles, drivers, trips, maintenance,
     fuel_logs, expenses, analytics, reports, notifications,
-    copilot, ws, settings, audit
+    copilot, ws, settings, audit, users
 )
 
 api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(vehicles.router, prefix="/vehicles", tags=["vehicles"])
 api_router.include_router(drivers.router, prefix="/drivers", tags=["drivers"])

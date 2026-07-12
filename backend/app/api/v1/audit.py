@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.deps import get_db, get_current_user
+from app.core.deps import get_db, get_current_user, RoleChecker
 from app.models.audit_log import AuditLog
 from app.utils.response_envelope import success_response
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(RoleChecker(["admin"]))])
 
 @router.get("/")
 async def list_audit_logs(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):

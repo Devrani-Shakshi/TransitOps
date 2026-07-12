@@ -31,12 +31,21 @@ def event_loop():
     loop.close()
 
 @pytest.fixture(scope="session", autouse=True)
-async def setup_db():
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+def setup_db():
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    
+    async def _create():
+        async with test_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            
+    async def _drop():
+        async with test_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+            
+    loop.run_until_complete(_create())
     yield
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+    loop.run_until_complete(_drop())
+    loop.close()
 
 @pytest.fixture
 async def db() -> AsyncGenerator[AsyncSession, None]:

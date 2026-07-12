@@ -90,22 +90,6 @@ import { NotificationService } from '../../../core/services/notification.service
               }
             </div>
 
-            <!-- Role Selection -->
-            <div class="space-y-1.5">
-              <label for="role" class="text-xs font-semibold text-foreground">Select Role</label>
-              <select 
-                id="role" 
-                formControlName="role"
-                class="w-full px-3 py-2 text-xs bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-              >
-                <option value="ADMIN">Administrator</option>
-                <option value="FLEET_MANAGER">Fleet Manager</option>
-                <option value="DRIVER">Dispatcher / Driver</option>
-                <option value="SAFETY_OFFICER">Safety Officer</option>
-                <option value="FINANCIAL_ANALYST">Financial Analyst</option>
-              </select>
-            </div>
-
             <!-- Submit Button -->
             <button 
               type="submit" 
@@ -126,13 +110,9 @@ import { NotificationService } from '../../../core/services/notification.service
 
           <!-- Pre-seeded credentials helpful details -->
           <div class="p-3 bg-muted/20 border border-border rounded-lg text-[10px] text-muted-foreground space-y-1">
-            <p class="font-bold text-foreground">Demo Accounts (Password: Demo&#64;123):</p>
+            <p class="font-bold text-foreground">Bootstrap Admin Credentials (Password: Demo&#64;123):</p>
             <ul class="list-disc pl-4 space-y-0.5">
               <li>Admin: <code class="text-primary font-mono">admin&#64;transitops.io</code></li>
-              <li>Fleet: <code class="text-primary font-mono">fleet&#64;transitops.io</code></li>
-              <li>Dispatcher/Driver: <code class="text-primary font-mono">driver&#64;transitops.io</code></li>
-              <li>Safety: <code class="text-primary font-mono">safety&#64;transitops.io</code></li>
-              <li>Financial Analyst: <code class="text-primary font-mono">finance&#64;transitops.io</code></li>
             </ul>
           </div>
         </div>
@@ -149,8 +129,7 @@ export class LoginComponent {
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]],
-    role: ['ADMIN', [Validators.required]]
+    password: ['', [Validators.required]]
   });
 
   loading = signal<boolean>(false);
@@ -168,22 +147,38 @@ export class LoginComponent {
     }
 
     this.loading.set(true);
-    const { email, password, role } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-    this.authService.login(email, password, role).subscribe({
+    this.authService.login(email, password).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success) {
           this.notifService.success('Logged in successfully');
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigateByUrl(returnUrl);
+          const user = this.authService.currentUser();
+          if (user) {
+            const role = user.role.toUpperCase();
+            if (role === 'ADMIN') {
+              this.router.navigate(['/user-management']);
+            } else if (role === 'FLEET_MANAGER') {
+              this.router.navigate(['/dashboard']);
+            } else if (role === 'DISPATCHER') {
+              this.router.navigate(['/trips']);
+            } else if (role === 'SAFETY_OFFICER') {
+              this.router.navigate(['/drivers']);
+            } else if (role === 'FINANCIAL_ANALYST') {
+              this.router.navigate(['/analytics']);
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         } else {
           this.errorMessage.set(res.message || 'Invalid credentials');
         }
       },
       error: (err) => {
         this.loading.set(false);
-        // Server error contains field-specific array
         if (err.errors && err.errors.length > 0) {
           this.errorMessage.set(err.errors[0].message);
         } else {

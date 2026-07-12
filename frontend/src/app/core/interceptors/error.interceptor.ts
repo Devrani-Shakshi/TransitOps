@@ -12,7 +12,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // Exclude login and refresh to avoid recursive loops
       const isAuthRequest = req.url.includes('/auth/login') || req.url.includes('/auth/refresh');
 
-      if (error.status === 401 && !isAuthRequest) {
+      if ((error.status === 401 || error.status === 403) && !isAuthRequest) {
         return authService.refreshSession().pipe(
           switchMap((res) => {
             const newToken = res.data.access_token;
