@@ -16,6 +16,13 @@ async def list_vehicles(skip: int = 0, limit: int = 100, db: AsyncSession = Depe
     data = [VehicleResponse.model_validate(v).model_dump(mode="json") for v in vehicles]
     return success_response(data=data)
 
+@router.get("/dispatch-pool")
+async def get_dispatch_pool_vehicles(db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
+    vehicles = await vehicle_repository.get_multi(db, skip=0, limit=100)
+    data = [VehicleResponse.model_validate(v).model_dump(mode="json") for v in vehicles if getattr(v, "status", "AVAILABLE") == "AVAILABLE"]
+    return success_response(data=data)
+
+
 @router.get("/{id}")
 async def get_vehicle(id: uuid.UUID, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     vehicle = await vehicle_service.get_vehicle(db, id)

@@ -9,9 +9,9 @@ export class MaintenanceMapper {
       vehicleId: json.vehicle_id,
       serviceType: json.service_type,
       cost: json.cost,
-      date: json.date,
+      date: json.service_date || json.date,
       status: json.status,
-      notes: json.notes,
+      notes: json.description || json.notes,
       vehicle: json.vehicle ? VehicleMapper.fromJson(json.vehicle) : undefined,
     };
   }
@@ -23,9 +23,9 @@ export class MaintenanceMapper {
       vehicle_id: model.vehicleId,
       service_type: model.serviceType,
       cost: model.cost,
-      date: model.date,
-      status: model.status,
-      notes: model.notes,
+      service_date: model.date,
+      status: model.status || 'SCHEDULED',
+      description: model.notes || 'Routine Maintenance',
     };
   }
 

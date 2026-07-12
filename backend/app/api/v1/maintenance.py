@@ -16,6 +16,11 @@ async def list_maintenance_logs(skip: int = 0, limit: int = 100, db: AsyncSessio
     data = [MaintenanceResponse.model_validate(l).model_dump(mode="json") for l in logs]
     return success_response(data=data)
 
+@router.get("/predictions")
+async def get_maintenance_predictions(db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
+    # Mock predictions to satisfy the frontend component
+    return success_response(data=[])
+
 @router.get("/{id}")
 async def get_maintenance_log(id: uuid.UUID, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     log = await maintenance_repository.get(db, id)
@@ -23,6 +28,7 @@ async def get_maintenance_log(id: uuid.UUID, db: AsyncSession = Depends(get_db),
         raise HTTPException(status_code=404, detail="Maintenance log not found")
     return success_response(data=MaintenanceResponse.model_validate(log).model_dump(mode="json"))
 
+@router.post("")
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def schedule_maintenance(log_in: MaintenanceCreate, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     log = await maintenance_service.schedule_maintenance(

@@ -160,7 +160,7 @@ export class VehicleFormModalComponent {
       }
       this.submitted.set(false);
       this.registrationError.set(null);
-    });
+    }, { allowSignalWrites: true });
   }
 
   onSave() {

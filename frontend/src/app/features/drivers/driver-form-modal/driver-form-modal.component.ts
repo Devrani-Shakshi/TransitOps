@@ -154,7 +154,7 @@ export class DriverFormModalComponent {
       }
       this.submitted.set(false);
       this.licenseError.set(null);
-    });
+    }, { allowSignalWrites: true });
   }
 
   onSave() {
