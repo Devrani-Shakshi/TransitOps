@@ -23,12 +23,8 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 def get_url():
-    from dotenv import load_dotenv
-    load_dotenv()
-    url = os.getenv("DATABASE_URL")
-    if not url:
-        url = "postgresql+asyncpg://postgres:postgres@localhost:5432/fleet_management"
-    return url
+    from app.core.config import settings
+    return settings.DATABASE_URL
 
 def run_migrations_offline() -> None:
     url = get_url()

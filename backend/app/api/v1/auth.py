@@ -91,8 +91,28 @@ async def login(
         return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-@router.post("/refresh", response_model=Token)
-async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
+@router.post("/refresh")
+async def refresh_token(request: Request, db: AsyncSession = Depends(get_db)):
+    content_type = request.headers.get("content-type", "")
+    refresh_token = None
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            refresh_token = body.get("refresh_token") or body.get("token")
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid JSON body")
+    else:
+        try:
+            form = await request.form()
+            refresh_token = form.get("refresh_token") or form.get("token")
+        except Exception:
+            pass
+
+    if not refresh_token:
+        refresh_token = request.query_params.get("refresh_token")
+
+    if not refresh_token:
+        raise HTTPException(status_code=422, detail="Refresh token is required")
     # 1. Verify in database
     result = await db.execute(select(RefreshToken).filter(RefreshToken.token == refresh_token))
     db_token = result.scalars().first()

@@ -1,6 +1,6 @@
-import { Component, input, output, inject, signal } from '@angular/core';
+import { Component, input, output, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../../core/services/api.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
@@ -8,27 +8,47 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 @Component({
   selector: 'app-trip-complete-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
   template: `
     <app-modal [isOpen]="isOpen()" title="Complete Trip" size="sm" (close)="close.emit()">
-      <div class="space-y-4 text-xs">
+      <form [formGroup]="completeForm" (ngSubmit)="submitComplete()" class="space-y-4 text-xs">
         <div>
           <label class="font-semibold text-foreground">Actual Distance (km) *</label>
-          <input type="number" [(ngModel)]="form.actualDistanceKm" class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          <input type="number" formControlName="actualDistanceKm" 
+                 [ngClass]="{'border-destructive focus:ring-destructive': submitted() && f['actualDistanceKm'].errors}"
+                 class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          @if (submitted() && f['actualDistanceKm'].errors) {
+            <span class="text-[10px] text-destructive block mt-1">Distance must be greater than 0</span>
+          }
         </div>
         <div>
           <label class="font-semibold text-foreground">Final Odometer *</label>
-          <input type="number" [(ngModel)]="form.finalOdometer" class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          <input type="number" formControlName="finalOdometer" 
+                 [ngClass]="{'border-destructive focus:ring-destructive': submitted() && f['finalOdometer'].errors}"
+                 class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          @if (submitted() && f['finalOdometer'].errors) {
+            <span class="text-[10px] text-destructive block mt-1">Final odometer is required and must be greater than 0</span>
+          }
         </div>
         <div>
           <label class="font-semibold text-foreground">Fuel Consumed (liters) *</label>
-          <input type="number" [(ngModel)]="form.fuelConsumedL" class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          <input type="number" formControlName="fuelConsumedL" 
+                 [ngClass]="{'border-destructive focus:ring-destructive': submitted() && f['fuelConsumedL'].errors}"
+                 class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          @if (submitted() && f['fuelConsumedL'].errors) {
+            <span class="text-[10px] text-destructive block mt-1">Liters must be greater than 0</span>
+          }
         </div>
         <div>
           <label class="font-semibold text-foreground">Revenue Earned (INR) *</label>
-          <input type="number" [(ngModel)]="form.revenue" class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          <input type="number" formControlName="revenue" 
+                 [ngClass]="{'border-destructive focus:ring-destructive': submitted() && f['revenue'].errors}"
+                 class="w-full mt-1 px-3 py-1.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs" />
+          @if (submitted() && f['revenue'].errors) {
+            <span class="text-[10px] text-destructive block mt-1">Revenue must be greater than 0</span>
+          }
         </div>
-      </div>
+      </form>
 
       <div footer class="flex items-center gap-2">
         <button (click)="close.emit()" class="px-4 py-2 border border-border text-xs rounded-lg hover:bg-muted text-foreground transition-colors">Cancel</button>
@@ -49,29 +69,46 @@ export class TripCompleteModalComponent {
   close = output<void>();
   save = output<void>();
 
+  private fb = inject(FormBuilder);
   private apiService = inject(ApiService);
   private notifService = inject(NotificationService);
 
   loading = signal<boolean>(false);
-  form = {
-    actualDistanceKm: 0,
-    finalOdometer: 0,
-    fuelConsumedL: 0,
-    revenue: 0
-  };
+  submitted = signal<boolean>(false);
+
+  completeForm = this.fb.group({
+    actualDistanceKm: [null as number | null, [Validators.required, Validators.min(1)]],
+    finalOdometer: [null as number | null, [Validators.required, Validators.min(1)]],
+    fuelConsumedL: [null as number | null, [Validators.required, Validators.min(1)]],
+    revenue: [null as number | null, [Validators.required, Validators.min(1)]]
+  });
+
+  get f() { return this.completeForm.controls; }
+
+  constructor() {
+    effect(() => {
+      if (this.isOpen()) {
+        this.completeForm.reset();
+        this.submitted.set(false);
+      }
+    });
+  }
 
   submitComplete() {
-    if (this.form.actualDistanceKm <= 0 || this.form.finalOdometer <= 0 || this.form.fuelConsumedL <= 0 || this.form.revenue <= 0) {
-      this.notifService.warning('Please fill in all details with valid positive numbers');
+    this.submitted.set(true);
+
+    if (this.completeForm.invalid) {
       return;
     }
 
     this.loading.set(true);
+    const formVal = this.completeForm.value;
+
     this.apiService.post(`/trips/${this.tripId()}/complete`, {
-      actual_distance_km: this.form.actualDistanceKm,
-      final_odometer: this.form.finalOdometer,
-      fuel_consumed_l: this.form.fuelConsumedL,
-      revenue: this.form.revenue
+      actual_distance_km: formVal.actualDistanceKm,
+      final_odometer: formVal.finalOdometer,
+      fuel_consumed_l: formVal.fuelConsumedL,
+      revenue: formVal.revenue
     }).subscribe({
       next: (res) => {
         this.loading.set(false);

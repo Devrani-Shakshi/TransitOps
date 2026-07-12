@@ -9,6 +9,7 @@ from app.utils.response_envelope import success_response, error_response
 
 router = APIRouter(dependencies=[Depends(RoleChecker(["admin", "fleet_manager", "dispatcher", "financial_analyst"]))])
 
+@router.get("")
 @router.get("/")
 async def list_vehicles(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     vehicles = await vehicle_repository.get_multi(db, skip=skip, limit=limit)

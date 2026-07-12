@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 import { WebsocketService } from '../../core/services/websocket.service';
+import { AuthService } from '../../core/services/auth.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -28,7 +29,7 @@ interface ChatMessage {
           </h1>
           <p class="text-xs text-slate-500 dark:text-slate-400 tracking-wider uppercase mt-1 font-semibold flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            AI Co-Pilot: Core operations stable. 3 recommended actions queue.
+            AI Co-Pilot active for {{ currentUser()?.role || 'SYSTEM' }} | Operations stable.
           </p>
         </div>
         
@@ -558,7 +559,7 @@ interface ChatMessage {
         </div>
 
         <!-- TRIP MANAGEMENT & DISPATCH STEPPER WORKFLOW -->
-        <div class="lg:col-span-2 glass-card rounded-2xl p-6 relative flex flex-col justify-between overflow-hidden">
+        <div *ngIf="currentUser()?.role === 'ADMIN' || currentUser()?.role === 'FLEET_MANAGER' || currentUser()?.role === 'DRIVER'" class="lg:col-span-2 glass-card rounded-2xl p-6 relative flex flex-col justify-between overflow-hidden">
           <!-- Animation element that will fly during dispatch -->
           <div *ngIf="isDispatching()" class="absolute left-6 top-6 w-16 h-16 bg-blue-500/30 rounded-xl border border-blue-500/50 flex items-center justify-center dispatch-fly-out z-50">
             <svg class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -849,7 +850,7 @@ interface ChatMessage {
         </div>
 
         <!-- Driver Leaderboard Panel -->
-        <div class="glass-card rounded-2xl p-6 relative flex flex-col justify-between">
+        <div *ngIf="currentUser()?.role === 'ADMIN' || currentUser()?.role === 'FLEET_MANAGER' || currentUser()?.role === 'SAFETY_OFFICER'" class="glass-card rounded-2xl p-6 relative flex flex-col justify-between">
           <div>
             <h3 class="text-sm font-bold text-slate-900 dark:text-white tracking-wide mb-1">Operator Leaderboard</h3>
             <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold mb-4">Top safety & eco metrics</p>
@@ -896,7 +897,7 @@ interface ChatMessage {
       </div>
 
       <!-- FINANCIAL ANALYTICS AREA GRAPH & EXPENSE CATEGORIES -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div *ngIf="currentUser()?.role === 'ADMIN' || currentUser()?.role === 'FLEET_MANAGER' || currentUser()?.role === 'FINANCIAL_ANALYST'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- Finance Analytics Area Charts -->
         <div class="lg:col-span-2 glass-card rounded-2xl p-6 relative flex flex-col justify-between">
@@ -1073,6 +1074,8 @@ interface ChatMessage {
 export class DashboardComponent implements OnInit, OnDestroy {
   apiService = inject(ApiService);
   websocketService = inject(WebsocketService);
+  authService = inject(AuthService);
+  currentUser = this.authService.currentUser;
 
   loading = signal<boolean>(false);
   kpis = signal<any>({

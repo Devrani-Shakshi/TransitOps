@@ -9,6 +9,7 @@ from app.utils.response_envelope import success_response
 
 router = APIRouter(dependencies=[Depends(RoleChecker(["admin", "fleet_manager", "safety_officer"]))])
 
+@router.get("")
 @router.get("/")
 async def list_maintenance_logs(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     logs = await maintenance_repository.get_multi(db, skip=skip, limit=limit)
