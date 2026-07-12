@@ -108,13 +108,6 @@ import { NotificationService } from '../../../core/services/notification.service
             </button>
           </form>
 
-          <!-- Pre-seeded credentials helpful details -->
-          <div class="p-3 bg-muted/20 border border-border rounded-lg text-[10px] text-muted-foreground space-y-1">
-            <p class="font-bold text-foreground">Bootstrap Admin Credentials (Password: Demo&#64;123):</p>
-            <ul class="list-disc pl-4 space-y-0.5">
-              <li>Admin: <code class="text-primary font-mono">admin&#64;transitops.io</code></li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
