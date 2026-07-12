@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Maintenance Report - Fleet Management</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        .header {
+            border-bottom: 2px solid #D9534F;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #D9534F;
+        }
+        .title {
+            font-size: 28px;
+            margin-top: 10px;
+            color: #1A252F;
+        }
+        .date {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .section-title {
+            font-size: 20px;
+            color: #D9534F;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8d7da;
+            color: #721c24;
+            font-weight: 600;
+        }
+        .badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .badge-scheduled {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .badge-in_progress {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .badge-cancelled {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .footer {
+            margin-top: 50px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Core Fleet Maintenance</div>
+        <div class="title">Vehicle Maintenance Report</div>
+        <div class="date">Period: {{ start_date }} to {{ end_date }}</div>
+    </div>
+
+    <div class="section-title">Summary Metrics</div>
+    <p>
+        <strong>Total Maintenance Cost:</strong> ${{ "%.2f"|format(total_cost) }}<br>
+        <strong>Logs Processed:</strong> {{ total_logs }}
+    </p>
+
+    <div class="section-title">Maintenance Logs</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Vehicle Plate</th>
+                <th>Service Date</th>
+                <th>Service Type</th>
+                <th>Description</th>
+                <th>Cost</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.vehicle_plate }}</td>
+                <td>{{ log.service_date }}</td>
+                <td>{{ log.service_type }}</td>
+                <td>{{ log.description }}</td>
+                <td>${{ "%.2f"|format(log.cost) }}</td>
+                <td>
+                    <span class="badge badge-{{ log.status }}">{{ log.status }}</span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center;">No maintenance records found for this period.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Confidential - Core Fleet Management System
+    </div>
+</body>
+</html>
