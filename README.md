@@ -1,10 +1,10 @@
-# 🚚 TransitOps - Fleet Management & Dispatch Operations
+# TransitOps - Fleet Management & Dispatch Operations
 
 TransitOps is a modern, real-time fleet management and dispatch operations platform. It features an Angular-based responsive frontend and a containerized FastAPI backend with asynchronous database connections, real-time WebSocket feeds, and automated background workers.
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 TransitOps is organized into a microservices-inspired architecture managed via Docker Compose:
 
@@ -16,7 +16,7 @@ TransitOps is organized into a microservices-inspired architecture managed via D
 
 ---
 
-## ✨ Features
+##  Features
 
 * **Real-time Fleet Dashboard**: Live KPIs (Active/Available/Maintenance Vehicles, Active/Pending Trips, Duty Drivers, Utilization) updating instantly via WebSockets.
 * **Interactive Fleet Distribution**: Interactive widgets detailing availability ratios across Trucks, Vans, and Containers.
@@ -27,7 +27,7 @@ TransitOps is organized into a microservices-inspired architecture managed via D
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 * **Framework**: Angular 18 (Standalone Components, Signals)
@@ -43,7 +43,7 @@ TransitOps is organized into a microservices-inspired architecture managed via D
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed on your machine.
