@@ -1,6 +1,12 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.document import Document
+    from app.models.trip import Trip
+
 
 class Driver(BaseModel):
     __tablename__ = "drivers"

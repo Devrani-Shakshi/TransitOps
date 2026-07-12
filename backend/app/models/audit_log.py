@@ -1,8 +1,13 @@
 import uuid
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.user import User
+
 
 class AuditLog(BaseModel):
     __tablename__ = "audit_logs"

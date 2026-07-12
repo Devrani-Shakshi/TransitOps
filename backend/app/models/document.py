@@ -1,9 +1,15 @@
 import uuid
 from datetime import date
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Date, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.vehicle import Vehicle
+    from app.models.driver import Driver
+
 
 class Document(BaseModel):
     __tablename__ = "documents"

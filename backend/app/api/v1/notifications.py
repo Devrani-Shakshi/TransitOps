@@ -8,13 +8,13 @@ from app.utils.response_envelope import success_response
 
 router = APIRouter()
 
-@router.get("/")
+@router.get("")
 async def list_notifications(limit: int = 50, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     notifs = await notification_service.get_user_notifications(db, user_id=current_user.id, limit=limit)
     data = [NotificationResponse.model_validate(n).model_dump(mode="json") for n in notifs]
     return success_response(data=data)
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def create_notification(notif_in: NotificationCreate, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     notif = await notification_service.create_notification(
         db,

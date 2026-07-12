@@ -1,6 +1,15 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Integer, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.document import Document
+    from app.models.trip import Trip
+    from app.models.maintenance_log import MaintenanceLog
+    from app.models.fuel_log import FuelLog
+    from app.models.expense import Expense
+
 
 class Vehicle(BaseModel):
     __tablename__ = "vehicles"

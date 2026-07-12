@@ -1,8 +1,15 @@
 import uuid
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Boolean, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.role import Role
+    from app.models.refresh_token import RefreshToken
+    from app.models.audit_log import AuditLog
+
 
 class User(BaseModel):
     __tablename__ = "users"

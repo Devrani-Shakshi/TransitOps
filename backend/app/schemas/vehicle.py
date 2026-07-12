@@ -29,6 +29,46 @@ class VehicleResponse(VehicleBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    
+    # Frontend compatibility fields
+    registration_number: str | None = None
+    model_name: str | None = None
+    type: str | None = None
+    max_load_capacity_kg: float = 15000.0
+    odometer_km: float = 0.0
+    acquisition_cost: float = 2500000.0
+    insurance_expiry: str = "2026-12-31T00:00:00"
+    fitness_cert_expiry: str = "2026-12-31T00:00:00"
+    pollution_cert_expiry: str = "2026-12-31T00:00:00"
+
+    @classmethod
+    def model_validate(cls, obj, *args, **kwargs):
+        instance = super().model_validate(obj, *args, **kwargs)
+        instance.registration_number = obj.license_plate
+        instance.model_name = f"{obj.make} {obj.model}"
+        
+        # Map to frontend enum: TRUCK, VAN, CONTAINER
+        ft = (obj.fuel_type or "").upper()
+        if ft == "GASOLINE":
+            instance.type = "TRUCK"
+        elif ft == "HYBRID":
+            instance.type = "VAN"
+        else:
+            instance.type = "CONTAINER"
+            
+        instance.odometer_km = obj.mileage
+        
+        # Format status to uppercase for frontend
+        instance.status = (obj.status or "active").upper()
+        if instance.status == "ACTIVE":
+            instance.status = "AVAILABLE"
+        elif instance.status == "MAINTENANCE":
+            instance.status = "IN_SHOP"
+        elif instance.status == "OUT_OF_SERVICE":
+            instance.status = "RETIRED"
+            
+        return instance
 
     class Config:
         from_attributes = True
+

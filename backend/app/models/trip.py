@@ -1,9 +1,15 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Float, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.vehicle import Vehicle
+    from app.models.driver import Driver
+
 
 class Trip(BaseModel):
     __tablename__ = "trips"

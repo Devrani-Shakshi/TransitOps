@@ -1,9 +1,14 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 from sqlalchemy import String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from app.models.user import User
+
 
 class RefreshToken(BaseModel):
     __tablename__ = "refresh_tokens"

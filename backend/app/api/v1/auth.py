@@ -1,10 +1,10 @@
 from datetime import datetime, timezone, timedelta
 import jwt
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.deps import get_db
+from app.core.deps import get_db, get_current_user
 from app.core.exceptions import CoreException
 from app.core.security import create_access_token, create_refresh_token, ALGORITHM
 from app.core.config import settings
@@ -29,9 +29,35 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     user_res = UserResponse.model_validate(user)
     return success_response(data=user_res.model_dump(mode="json"), status_code=status.HTTP_201_CREATED)
 
-@router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
-    user = await auth_service.authenticate(db, email=form_data.username, password=form_data.password)
+@router.post("/login")
+async def login(
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+):
+    content_type = request.headers.get("content-type", "")
+    
+    email = None
+    password = None
+    
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            email = body.get("email") or body.get("username")
+            password = body.get("password")
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid JSON body")
+    else:
+        try:
+            form = await request.form()
+            email = form.get("username") or form.get("email")
+            password = form.get("password")
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid form data")
+            
+    if not email or not password:
+        raise HTTPException(status_code=422, detail="Email and password are required")
+        
+    user = await auth_service.authenticate(db, email=email, password=password)
     
     role_name = user.role.name if user.role else None
     access_token = create_access_token(subject=user.id, role=role_name)
@@ -43,7 +69,21 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     db.add(db_refresh)
     await db.commit()
     
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    if "application/json" in content_type:
+        return success_response(data={
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user": {
+                "id": str(user.id),
+                "email": user.email,
+                "role": role_name,
+                "full_name": user.full_name
+            }
+        })
+    else:
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
 
 @router.post("/refresh", response_model=Token)
 async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
@@ -84,3 +124,12 @@ async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     await db.commit()
 
     return {"access_token": new_access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
+
+@router.post("/logout")
+async def logout(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Delete the user's refresh tokens
+    from sqlalchemy import delete
+    await db.execute(delete(RefreshToken).where(RefreshToken.user_id == current_user.id))
+    await db.commit()
+    return success_response(data={"message": "Logged out successfully"})
+

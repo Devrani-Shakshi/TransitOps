@@ -200,9 +200,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return `${this.kpis().fleetUtilization || 0}%`;
   });
 
+  constructor() {
+    effect(() => {
+      const update = this.websocketService.kpiUpdates();
+      if (update) {
+        console.log('Realtime KPI update received:', update);
+        this.kpis.update(current => ({
+          ...current,
+          activeVehicles: update.active_vehicles ?? current.activeVehicles,
+          availableVehicles: update.available_vehicles ?? current.availableVehicles,
+          vehiclesInMaintenance: update.vehicles_in_maintenance ?? current.vehiclesInMaintenance,
+          activeTrips: update.active_trips ?? current.activeTrips,
+          pendingTrips: update.pending_trips ?? current.pendingTrips,
+          driversOnDuty: update.drivers_on_duty ?? current.driversOnDuty,
+          fleetUtilization: update.fleet_utilization ?? current.fleetUtilization
+        }));
+      }
+    }, { allowSignalWrites: true });
+  }
+
   ngOnInit() {
     this.loadDashboardData();
-    this.subscribeToRealtimeUpdates();
   }
 
   ngOnDestroy() {
@@ -282,24 +300,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  subscribeToRealtimeUpdates() {
-    effect(() => {
-      const update = this.websocketService.kpiUpdates();
-      if (update) {
-        console.log('Realtime KPI update received:', update);
-        this.kpis.update(current => ({
-          ...current,
-          activeVehicles: update.active_vehicles ?? current.activeVehicles,
-          availableVehicles: update.available_vehicles ?? current.availableVehicles,
-          vehiclesInMaintenance: update.vehicles_in_maintenance ?? current.vehiclesInMaintenance,
-          activeTrips: update.active_trips ?? current.activeTrips,
-          pendingTrips: update.pending_trips ?? current.pendingTrips,
-          driversOnDuty: update.drivers_on_duty ?? current.driversOnDuty,
-          fleetUtilization: update.fleet_utilization ?? current.fleetUtilization
-        }));
-      }
-    }, { allowSignalWrites: true });
-  }
+
 
   statusCount(status: string): number {
     const item = this.vehicleStatuses().find(s => s.status === status);
