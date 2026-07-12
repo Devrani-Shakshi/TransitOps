@@ -8,6 +8,7 @@ from app.utils.response_envelope import success_response
 
 router = APIRouter()
 
+@router.get("")
 @router.get("/")
 async def list_fuel_logs(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     logs = await fuel_repository.get_multi(db, skip=skip, limit=limit)

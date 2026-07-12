@@ -15,6 +15,7 @@ class TripTransitionRequest(BaseModel):
     status: str
     actual_distance: float | None = None
 
+@router.get("")
 @router.get("/")
 async def list_trips(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db), current_user = Depends(get_current_user)):
     trips = await trip_repository.get_multi(db, skip=skip, limit=limit)
