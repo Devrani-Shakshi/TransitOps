@@ -22,7 +22,8 @@ def create_refresh_token(subject: str | Any, expires_delta: timedelta | None = N
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    to_encode = {"exp": expire, "sub": str(subject), "type": "refresh"}
+    import uuid
+    to_encode = {"exp": expire, "sub": str(subject), "type": "refresh", "jti": str(uuid.uuid4())}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 

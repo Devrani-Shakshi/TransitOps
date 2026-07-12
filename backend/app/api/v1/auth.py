@@ -61,8 +61,9 @@ async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     # 2. Decode JWT
     try:
         payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-    except jwt.PyJWTError:
+        import uuid
+        user_id = uuid.UUID(payload.get("sub"))
+    except (jwt.PyJWTError, ValueError):
         raise HTTPException(status_code=400, detail="Invalid refresh token")
 
     # 3. Retrieve user

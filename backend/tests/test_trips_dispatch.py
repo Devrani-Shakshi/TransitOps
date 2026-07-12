@@ -69,8 +69,7 @@ async def test_trip_dispatch_rejections(client: AsyncClient, db: AsyncSession):
         year=2021,
         status="out_of_service",
         mileage=5000.0,
-        fuel_type="gasoline",
-        is_active=False
+        fuel_type="gasoline"
     )
     db.add(inactive_vehicle)
     await db.commit()

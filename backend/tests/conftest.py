@@ -2,7 +2,10 @@ import asyncio
 import os
 import pytest
 from typing import AsyncGenerator
-from httpx import AsyncClient
+import sqlalchemy.dialects.postgresql as pg
+from sqlalchemy import Uuid
+pg.UUID = Uuid
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.models.base import Base
 from app.core.config import settings
@@ -37,9 +40,11 @@ async def setup_db():
 
 @pytest.fixture
 async def db() -> AsyncGenerator[AsyncSession, None]:
-    async with TestingSessionLocal() as session:
-        yield session
-        await session.rollback()
+    async with test_engine.connect() as connection:
+        async with connection.begin() as transaction:
+            async with AsyncSession(bind=connection, expire_on_commit=False) as session:
+                yield session
+            await transaction.rollback()
 
 @pytest.fixture
 async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
@@ -47,6 +52,6 @@ async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
         yield db
 
     app.dependency_overrides[get_db] = override_get_db
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.clear()

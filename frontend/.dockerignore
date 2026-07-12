@@ -5,5 +5,4 @@ dist
 .gitignore
 .vscode
 Dockerfile
-nginx.conf
 README.md

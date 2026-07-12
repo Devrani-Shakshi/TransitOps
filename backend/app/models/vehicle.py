@@ -14,6 +14,10 @@ class Vehicle(BaseModel):
     mileage: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     fuel_type: Mapped[str] = mapped_column(String(20), default="gasoline", nullable=False) # gasoline, diesel, electric, hybrid
 
+    @property
+    def is_active(self) -> bool:
+        return self.status != "out_of_service" and not self.is_deleted
+
     # Relationships
     documents: Mapped[list["Document"]] = relationship("Document", back_populates="vehicle", cascade="all, delete-orphan")
     trips: Mapped[list["Trip"]] = relationship("Trip", back_populates="vehicle")

@@ -21,7 +21,7 @@ services:
     ports:
       - "6379:6379"
 
-  web:
+  api:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -61,6 +61,17 @@ services:
     depends_on:
       - db
       - redis
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fleet_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api
 
 volumes:
   postgres_data:
