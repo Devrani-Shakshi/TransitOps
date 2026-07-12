@@ -3,6 +3,7 @@ import jwt
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.deps import get_db, get_current_user
 from app.core.exceptions import CoreException
@@ -133,7 +134,11 @@ async def refresh_token(request: Request, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid refresh token")
 
     # 3. Retrieve user
-    user_res = await db.execute(select(User).filter(User.id == user_id, User.is_deleted == False))
+    user_res = await db.execute(
+        select(User)
+        .options(selectinload(User.role))
+        .filter(User.id == user_id, User.is_deleted == False)
+    )
     user = user_res.scalars().first()
     if not user:
         raise HTTPException(status_code=400, detail="User not found")
